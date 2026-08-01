@@ -1,37 +1,84 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Circuit Tuka</title>
 
 <style>
 
 body{
-background:#0f2027;
+background:#0d0d0d;
 color:white;
 font-family:Arial;
 text-align:center;
+margin:0;
 }
 
-h1{
-color:#00ff88;
+/* TOPO */
+.topo{
+background:#111;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
 
-canvas{
-background:black;
-border:3px solid #00ff88;
-margin-top:20px;
+.titulo{
+color:#00ff55;
+font-size:20px;
+}
+
+.voltar{
+background:#222;
+padding:10px;
+border-radius:10px;
+cursor:pointer;
+}
+
+.voltar:hover{
+background:#00aa44;
+}
+
+/* RESTO É SEU */
+h1{color:#00ff55;}
+
+#tabuleiro{
+display:grid;
+grid-template-columns:repeat(5,65px);
+gap:8px;
+justify-content:center;
+margin:20px;
+}
+
+.peca{
+width:65px;
+height:65px;
+font-size:42px;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+color:#888;
+transition:.3s;
+}
+
+.energia{
+color:#00ff55;
+text-shadow:0 0 18px #00ff55;
 }
 
 button{
-margin-top:15px;
-padding:10px 20px;
-border:none;
-background:#00ff88;
-color:black;
-font-size:16px;
-cursor:pointer;
+padding:12px 18px;
+margin:5px;
+border:0;
 border-radius:10px;
+background:#00ff55;
+font-size:16px;
+}
+
+.aviso{
+color:#aaa;
+font-size:13px;
 }
 
 </style>
@@ -39,94 +86,142 @@ border-radius:10px;
 
 <body>
 
-<h1>⚡ Circuit Tuka</h1>
-<p>Leve a energia até o objetivo</p>
+<div class="topo">
+<div class="titulo">⚡ Circuit Tuka</div>
+<div class="voltar" onclick="location.href='../../index.html'">⬅</div>
+</div>
 
-<canvas id="game" width="500" height="400"></canvas>
-<br>
-<button onclick="reiniciar()">🔄 Reiniciar</button>
+<p>Ligue os cabos da 🔋</p>
+
+<div id="tabuleiro"></div>
+
+<button onclick="energia()">⚡ Passar energia</button>
+<button onclick="novaFase()">🔄 Nova fase</button>
+
+<p class="aviso">
+⚠️ Se a fase parecer impossível, gere outra.
+</p>
+
+<h2 id="msg"></h2>
 
 <script>
 
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+/* SEU SCRIPT ORIGINAL (NÃO MUDEI NADA) */
 
-let player = {x:50, y:200, size:15};
-let goal = {x:450, y:200, size:20};
+let pecas=[];
 
-let walls = [
-{x:150,y:0,w:20,h:300},
-{x:300,y:100,w:20,h:300}
+const tipos=[
+["─",[0,1,0,1]],
+["│",[1,0,1,0]],
+["┌",[0,1,1,0]],
+["┐",[0,0,1,1]],
+["└",[1,1,0,0]],
+["┘",[1,0,0,1]]
 ];
 
-let speed = 3;
+function novaFase(){
+pecas=[];
+for(let i=0;i<25;i++){
+let t=tipos[Math.floor(Math.random()*tipos.length)];
+pecas.push({icone:t[0],lado:[...t[1]],energia:false});
+}
 
-function draw(){
+pecas[0].icone="🔋";
+pecas[24].icone="💡";
 
-ctx.clearRect(0,0,canvas.width,canvas.height);
+for(let i=1;i<24;i++){
+let vezes=Math.floor(Math.random()*4);
+while(vezes--) girar(pecas[i]);
+}
 
-// player
-ctx.fillStyle = "#00ff88";
-ctx.beginPath();
-ctx.arc(player.x,player.y,player.size,0,Math.PI*2);
-ctx.fill();
+mostrar();
+}
 
-// goal
-ctx.fillStyle = "yellow";
-ctx.fillRect(goal.x,goal.y,goal.size,goal.size);
+function girar(p){
+let antigo=[...p.lado];
+p.lado=[antigo[3],antigo[0],antigo[1],antigo[2]];
 
-// walls
-ctx.fillStyle = "red";
-walls.forEach(w=>{
-ctx.fillRect(w.x,w.y,w.w,w.h);
+let mapa={
+"─":"│","│":"─","┌":"┐","┐":"┘","┘":"└","└":"┌"
+};
+
+p.icone=mapa[p.icone] || p.icone;
+}
+
+function mostrar(){
+let tab=document.getElementById("tabuleiro");
+tab.innerHTML="";
+
+pecas.forEach((p,i)=>{
+let d=document.createElement("div");
+d.className="peca";
+
+if(p.energia) d.classList.add("energia");
+
+d.innerHTML=p.icone;
+
+if(i!=0){
+d.onclick=()=>{girar(p);mostrar();}
+}
+
+tab.appendChild(d);
 });
-
 }
 
-function update(){
-
-// colisão com paredes
-walls.forEach(w=>{
-if(player.x > w.x &&
-player.x < w.x + w.w &&
-player.y > w.y &&
-player.y < w.y + w.h){
-alert("💀 Você perdeu!");
-reiniciar();
-}
-});
-
-// vitória
-if(player.x > goal.x &&
-player.y > goal.y &&
-player.y < goal.y + goal.size){
-alert("🏆 Você venceu!");
-reiniciar();
+function esperar(ms){
+return new Promise(r=>setTimeout(r,ms));
 }
 
+async function energia(){
+
+pecas.forEach(p=>p.energia=false);
+mostrar();
+
+let fila=[0];
+let visitados=[];
+
+document.getElementById("msg").innerHTML="⚡ Energia passando...";
+
+while(fila.length){
+
+let atual=fila.shift();
+if(visitados.includes(atual)) continue;
+
+visitados.push(atual);
+pecas[atual].energia=true;
+mostrar();
+
+await esperar(200);
+
+let x=atual%5;
+let y=Math.floor(atual/5);
+
+let direcoes=[[0,-1],[1,0],[0,1],[-1,0]];
+
+for(let lado=0;lado<4;lado++){
+
+if(pecas[atual].lado[lado]){
+
+let nx=x+direcoes[lado][0];
+let ny=y+direcoes[lado][1];
+
+if(nx>=0&&nx<5&&ny>=0&&ny<5){
+
+let proximo=ny*5+nx;
+
+if(pecas[proximo].lado[(lado+2)%4]){
+fila.push(proximo);
 }
 
-function loop(){
-draw();
-update();
-requestAnimationFrame(loop);
+}
+}
+}
 }
 
-document.addEventListener("keydown",(e)=>{
-
-if(e.key==="ArrowUp") player.y -= speed;
-if(e.key==="ArrowDown") player.y += speed;
-if(e.key==="ArrowLeft") player.x -= speed;
-if(e.key==="ArrowRight") player.x += speed;
-
-});
-
-function reiniciar(){
-player.x = 50;
-player.y = 200;
+document.getElementById("msg").innerHTML="⚡ Energia distribuída!";
 }
 
-loop();
+novaFase();
 
 </script>
 
