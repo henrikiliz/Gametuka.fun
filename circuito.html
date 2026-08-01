@@ -1,1 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Circuit Tuka</title>
 
+<style>
+body{
+background:#111;
+color:white;
+font-family:Arial;
+text-align:center;
+}
+
+h1{
+color:#00ff55;
+}
+
+#tabuleiro{
+display:grid;
+grid-template-columns:repeat(5,65px);
+gap:8px;
+justify-content:center;
+margin:20px;
+}
+
+.peca{
+width:65px;
+height:65px;
+font-size:42px;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+color:#888;
+transition:.3s;
+}
+
+.energia{
+color:#00ff55;
+text-shadow:0 0 18px #00ff55;
+}
+
+button{
+padding:12px 18px;
+margin:5px;
+border:0;
+border-radius:10px;
+background:#00ff55;
+font-size:16px;
+}
+
+.aviso{
+color:#aaa;
+font-size:13px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>⚡ Circuit Tuka</h1>
+
+<p>Ligue os cabos da 🔋</p>
+
+<div id="tabuleiro"></div>
+
+<button onclick="energia()">⚡ Passar energia</button>
+<button onclick="novaFase()">🔄 Nova fase</button>
+
+<p class="aviso">
+⚠️ Se a fase parecer impossível, gere outra.
+</p>
+
+<h2 id="msg"></h2>
+
+
+<script>
+
+let pecas=[];
+
+
+const tipos=[
+["─",[0,1,0,1]],
+["│",[1,0,1,0]],
+["┌",[0,1,1,0]],
+["┐",[0,0,1,1]],
+["└",[1,1,0,0]],
+["┘",[1,0,0,1]]
+];
+
+
+
+function novaFase(){
+
+pecas=[];
+
+
+for(let i=0;i<25;i++){
+
+let t=tipos[Math.floor(Math.random()*tipos.length)];
+
+pecas.push({
+
+icone:t[0],
+lado:[...t[1]],
+energia:false
+
+});
+
+}
+
+
+pecas[0].icone="🔋";
+pecas[24].icone="💡";
+
+
+// embaralha rotações
+
+for(let i=1;i<24;i++){
+
+let vezes=Math.floor(Math.random()*4);
+
+while(vezes--){
+
+girar(pecas[i]);
+
+}
+
+}
+
+
+mostrar();
+
+}
+
+
+
+
+function girar(p){
+
+let antigo=[...p.lado];
+
+p.lado=[
+antigo[3],
+antigo[0],
+antigo[1],
+antigo[2]
+];
+
+
+let mapa={
+"─":"│",
+"│":"─",
+"┌":"┐",
+"┐":"┘",
+"┘":"└",
+"└":"┌"
+};
+
+p.icone=mapa[p.icone] || p.icone;
+
+}
+
+
+
+
+function mostrar(){
+
+let tab=document.getElementById("tabuleiro");
+
+tab.innerHTML="";
+
+
+pecas.forEach((p,i)=>{
+
+let d=document.createElement("div");
+
+d.className="peca";
+
+
+if(p.energia)
+d.classList.add("energia");
+
+
+d.innerHTML=p.icone;
+
+
+
+if(i!=0){
+
+d.onclick=()=>{
+
+girar(p);
+
+mostrar();
+
+};
+
+}
+
+
+tab.appendChild(d);
+
+
+});
+
+
+}
+
+
+
+function esperar(ms){
+
+return new Promise(r=>setTimeout(r,ms));
+
+}
+
+
+
+async function energia(){
+
+pecas.forEach(p=>p.energia=false);
+
+mostrar();
+
+
+let fila=[0];
+
+let visitados=[];
+
+
+document.getElementById("msg").innerHTML=
+"⚡ Energia passando...";
+
+
+
+while(fila.length){
+
+
+let atual=fila.shift();
+
+
+if(visitados.includes(atual))
+continue;
+
+
+visitados.push(atual);
+
+
+pecas[atual].energia=true;
+
+mostrar();
+
+
+await esperar(200);
+
+
+
+let x=atual%5;
+let y=Math.floor(atual/5);
+
+
+
+let direcoes=[
+
+[0,-1],
+[1,0],
+[0,1],
+[-1,0]
+
+];
+
+
+
+for(let lado=0;lado<4;lado++){
+
+
+if(pecas[atual].lado[lado]){
+
+
+let nx=x+direcoes[lado][0];
+let ny=y+direcoes[lado][1];
+
+
+if(nx>=0&&nx<5&&ny>=0&&ny<5){
+
+
+let proximo=ny*5+nx;
+
+
+if(pecas[proximo].lado[(lado+2)%4]){
+
+fila.push(proximo);
+
+}
+
+
+}
+
+
+}
+
+
+}
+
+
+}
+
+
+
+document.getElementById("msg").innerHTML=
+"⚡ Energia distribuída!";
+
+}
+
+
+
+novaFase();
+
+</script>
+
+</body>
+</html>
