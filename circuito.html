@@ -1,44 +1,133 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Circuito</title>
+<meta charset="UTF-8">
+<title>Circuit Tuka</title>
 
-    <style>
-        body {
-            margin: 0;
-            background: black;
-            overflow: hidden;
-        }
+<style>
 
-        #player {
-            width: 50px;
-            height: 50px;
-            background: red;
-            position: absolute;
-            top: 200px;
-            left: 200px;
-        }
-    </style>
+body{
+background:#0f2027;
+color:white;
+font-family:Arial;
+text-align:center;
+}
+
+h1{
+color:#00ff88;
+}
+
+canvas{
+background:black;
+border:3px solid #00ff88;
+margin-top:20px;
+}
+
+button{
+margin-top:15px;
+padding:10px 20px;
+border:none;
+background:#00ff88;
+color:black;
+font-size:16px;
+cursor:pointer;
+border-radius:10px;
+}
+
+</style>
 </head>
 
 <body>
 
-<div id="player"></div>
+<h1>⚡ Circuit Tuka</h1>
+<p>Leve a energia até o objetivo</p>
+
+<canvas id="game" width="500" height="400"></canvas>
+<br>
+<button onclick="reiniciar()">🔄 Reiniciar</button>
 
 <script>
-let player = document.getElementById("player");
-let x = 200;
-let y = 200;
 
-document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowUp") y -= 10;
-    if (e.key === "ArrowDown") y += 10;
-    if (e.key === "ArrowLeft") x -= 10;
-    if (e.key === "ArrowRight") x += 10;
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-    player.style.top = y + "px";
-    player.style.left = x + "px";
+let player = {x:50, y:200, size:15};
+let goal = {x:450, y:200, size:20};
+
+let walls = [
+{x:150,y:0,w:20,h:300},
+{x:300,y:100,w:20,h:300}
+];
+
+let speed = 3;
+
+function draw(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+// player
+ctx.fillStyle = "#00ff88";
+ctx.beginPath();
+ctx.arc(player.x,player.y,player.size,0,Math.PI*2);
+ctx.fill();
+
+// goal
+ctx.fillStyle = "yellow";
+ctx.fillRect(goal.x,goal.y,goal.size,goal.size);
+
+// walls
+ctx.fillStyle = "red";
+walls.forEach(w=>{
+ctx.fillRect(w.x,w.y,w.w,w.h);
 });
+
+}
+
+function update(){
+
+// colisão com paredes
+walls.forEach(w=>{
+if(player.x > w.x &&
+player.x < w.x + w.w &&
+player.y > w.y &&
+player.y < w.y + w.h){
+alert("💀 Você perdeu!");
+reiniciar();
+}
+});
+
+// vitória
+if(player.x > goal.x &&
+player.y > goal.y &&
+player.y < goal.y + goal.size){
+alert("🏆 Você venceu!");
+reiniciar();
+}
+
+}
+
+function loop(){
+draw();
+update();
+requestAnimationFrame(loop);
+}
+
+document.addEventListener("keydown",(e)=>{
+
+if(e.key==="ArrowUp") player.y -= speed;
+if(e.key==="ArrowDown") player.y += speed;
+if(e.key==="ArrowLeft") player.x -= speed;
+if(e.key==="ArrowRight") player.x += speed;
+
+});
+
+function reiniciar(){
+player.x = 50;
+player.y = 200;
+}
+
+loop();
+
 </script>
 
 </body>
