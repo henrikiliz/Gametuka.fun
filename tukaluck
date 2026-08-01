@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tuka Luck</title>
+
+<style>
+
+body{
+background:#0d0d0d;
+color:white;
+font-family:Arial;
+text-align:center;
+margin:0;
+}
+
+/* TOPO */
+.topo{
+background:#111;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.titulo{
+color:#00ff55;
+font-size:20px;
+}
+
+.voltar{
+background:#222;
+padding:10px;
+border-radius:10px;
+cursor:pointer;
+}
+
+.voltar:hover{
+background:#00aa44;
+}
+
+/* RESTO DO JOGO */
+h1{
+color:#00ff88;
+text-shadow:0 0 20px #00ff88
+}
+
+.box{
+background:#1a1a1a;
+width:90%;
+max-width:400px;
+margin:20px auto;
+padding:20px;
+border-radius:20px
+}
+
+button{
+padding:10px;
+margin:4px;
+border-radius:10px;
+cursor:pointer;
+border:none;
+}
+
+input{
+padding:10px;
+border-radius:8px;
+border:none;
+width:70%;
+}
+
+.red{background:red;color:white}
+.black{background:black;color:white}
+.green{background:green;color:white}
+
+.sel{
+box-shadow:0 0 25px yellow;
+transform:scale(1.15)
+}
+
+#roleta{
+width:220px;
+height:220px;
+margin:auto;
+border-radius:50%;
+border:5px solid white;
+background:conic-gradient(
+red 0deg 17deg, black 17deg 34deg,
+red 34deg 51deg, black 51deg 68deg,
+red 68deg 85deg, black 85deg 102deg,
+red 102deg 119deg, black 119deg 136deg,
+red 136deg 153deg, black 153deg 170deg,
+red 170deg 187deg, black 187deg 204deg,
+red 204deg 221deg, black 221deg 238deg,
+red 238deg 255deg, black 255deg 272deg,
+red 272deg 289deg, black 289deg 306deg,
+red 306deg 323deg, black 323deg 342deg,
+green 342deg 360deg);
+transition:1s
+}
+
+#ceu{
+height:200px;
+background:#111155;
+border-radius:15px;
+position:relative;
+overflow:hidden
+}
+
+#rocket{
+font-size:40px;
+position:absolute;
+bottom:0;
+left:45%
+}
+
+#slots{
+font-size:35px;
+background:#111;
+padding:15px;
+border-radius:10px;
+}
+
+.win{color:#00ff88}
+.lose{color:red}
+
+.popup{
+position:fixed;
+font-size:25px;
+font-weight:bold
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="topo">
+<div class="titulo">🎰 Tuka Luck</div>
+<div class="voltar" onclick="location.href='../../index.html'">⬅</div>
+</div>
+
+<h2>💰 R$ <span id="money">1000</span></h2>
+
+<!-- ROOLETA -->
+<div class="box">
+<h2>🎡 Roleta</h2>
+<div>🔽</div>
+<div id="roleta"></div>
+
+<button class="red" onclick="pick('r')">🔴</button>
+<button class="black" onclick="pick('b')">⚫</button>
+<button class="green" onclick="pick('g')">🟢</button>
+
+<br>
+<input id="bet" placeholder="Aposta">
+<button onclick="spin()">Girar</button>
+</div>
+
+<!-- ROCKET -->
+<div class="box">
+<h2>🚀 Tuka Rocket</h2>
+
+<div id="ceu">
+<div id="rocket">🚀</div>
+</div>
+
+<h2><span id="multi">1.00</span>x</h2>
+
+<input id="rbet" placeholder="Aposta">
+<button onclick="launch()">Lançar</button>
+<button onclick="cash()">Retirar</button>
+</div>
+
+<!-- TIGRINHO -->
+<div class="box">
+<h2>🐯 Tuka Tigrinho</h2>
+
+<div id="slots">
+🍒 | 🍒 | 🍒
+</div>
+
+<input id="tbet" placeholder="Aposta">
+<button onclick="tiger()">Girar</button>
+</div>
+
+<script>
+
+/* SEU SCRIPT ORIGINAL — NÃO ALTEREI */
+
+let money=1000;
+let choice="";
+let dev=false;
+
+let flying=false;
+let rMoney=0;
+let m=1;
+let timer;
+
+function update(){
+document.getElementById("money").innerHTML=money.toFixed(2);
+}
+
+function pop(t,c){
+let p=document.createElement("div");
+p.className="popup "+c;
+p.innerHTML=t;
+p.style.left="40%";
+p.style.top="50%";
+document.body.appendChild(p);
+setTimeout(()=>p.remove(),1200);
+}
+
+// ROLETA
+function pick(c){
+choice=c;
+document.querySelectorAll("button")
+.forEach(x=>x.classList.remove("sel"));
+
+if(c=="r") document.querySelector(".red").classList.add("sel");
+if(c=="b") document.querySelector(".black").classList.add("sel");
+if(c=="g") document.querySelector(".green").classList.add("sel");
+}
+
+function spin(){
+let v=document.getElementById("bet").value;
+
+if(v.toLowerCase()=="soutukadev"){
+dev=true;
+money=999999999;
+update();
+pop("🛠️ DEV + 🍀 SORTE INFINITA","win");
+return;
+}
+
+let bet=Number(v);
+if(!choice||bet<=0||bet>money)return;
+
+money-=bet;
+update();
+
+let deg=720+Math.random()*360;
+roleta.style.transform="rotate("+deg+"deg)";
+
+setTimeout(()=>{
+let result;
+
+if(dev) result=choice;
+else{
+let p=360-(deg%360);
+if(p>=342) result="g";
+else result=Math.floor(p/17)%2?"b":"r";
+}
+
+if(result==choice){
+let gain=result=="g"?bet*15:bet*2;
+money+=gain;
+pop("🎉 +R$"+gain,"win");
+}else pop("❌ Perdeu","lose");
+
+update();
+
+},1000);
+}
+
+// ROCKET
+function launch(){
+if(flying)return;
+
+rMoney=Number(document.getElementById("rbet").value);
+if(rMoney<=0||rMoney>money)return;
+
+money-=rMoney;
+update();
+
+m=1;
+flying=true;
+
+let n=Math.random();
+let crash;
+
+if(n<0.03)crash=1;
+else if(n<0.53)crash=1+Math.random();
+else if(n<0.9)crash=2+Math.random()*8;
+else crash=10+Math.random()*20;
+
+timer=setInterval(()=>{
+m+=0.03;
+multi.innerHTML=m.toFixed(2);
+rocket.style.bottom=m*10+"px";
+
+if(m>=crash){
+clearInterval(timer);
+flying=false;
+pop("💥 Crash","lose");
+}
+},100);
+}
+
+function cash(){
+if(!flying)return;
+
+clearInterval(timer);
+flying=false;
+
+let gain=rMoney*m;
+money+=gain;
+
+pop("🚀 +R$"+gain.toFixed(2),"win");
+update();
+}
+
+// TIGRINHO
+function symbol(){
+let n=Math.random()*100;
+if(n<40)return["🍒",0.5];
+if(n<65)return["🍋",0.8];
+if(n<80)return["🔔",2];
+if(n<90)return["💰",5];
+if(n<97)return["🐯",15];
+return["💎",50];
+}
+
+function tiger(){
+let bet=Number(document.getElementById("tbet").value);
+if(bet<=0||bet>money)return;
+
+money-=bet;
+
+let a=symbol();
+let b=symbol();
+let c=symbol();
+
+slots.innerHTML=a[0]+" | "+b[0]+" | "+c[0];
+
+if(a[0]==b[0]&&b[0]==c[0]){
+let gain=bet*a[1];
+money+=gain;
+pop("🐯 +R$"+gain,"win");
+}else pop("❌ Perdeu","lose");
+
+update();
+}
+
+</script>
+
+</body>
+</html>
