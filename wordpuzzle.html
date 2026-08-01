@@ -1,31 +1,356 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Word Puzzle</title>
+
+<title>Tuka Words</title>
+
+<style>
+
+body{
+    background:#111;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+}
+
+h1{
+    color:#00ff55;
+    font-size:40px;
+}
+
+.area{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin:20px;
+    min-height:70px;
+}
+
+.bloco{
+    background:#222;
+    border:2px solid #00ff55;
+    padding:15px;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:18px;
+}
+
+.bloco:active{
+    transform:scale(1.1);
+}
+
+button{
+    background:#00ff55;
+    border:0;
+    padding:15px 25px;
+    border-radius:12px;
+    font-size:18px;
+    margin:10px;
+}
+
+#frase{
+    border:2px dashed #777;
+    padding:20px;
+}
+
+
+</style>
+
 </head>
 
-<body style="text-align:center; font-family:Arial;">
+<body>
 
-<h1>🧩 Adivinhe a palavra</h1>
 
-<input id="input" placeholder="Digite a palavra">
-<button onclick="check()">Verificar</button>
+<h1>🧩 Tuka Words</h1>
 
-<p id="result"></p>
+
+<button onclick="trocarModo()">
+Modo: <span id="modo">Clicar</span>
+</button>
+
+
+<h2>Palavras disponíveis</h2>
+
+<div id="palavras" class="area"></div>
+
+
+<h2>Sua frase</h2>
+
+<div id="frase" class="area"></div>
+
+
+<button onclick="verificar()">
+Verificar
+</button>
+
+
+<h2 id="vidas">
+❤️❤️❤️❤️❤️
+</h2>
+
+
+<h3 id="dica"></h3>
+
+
 
 <script>
-let palavra = "jogo";
 
-function check() {
-    let valor = document.getElementById("input").value;
 
-    if (valor === palavra) {
-        document.getElementById("result").innerText = "Acertou!";
-    } else {
-        document.getElementById("result").innerText = "Errou!";
-    }
+let bancoFrases=[
+
+"o gato comeu pizza",
+
+"meu amigo jogou bola",
+
+"o robo viajou para marte",
+
+"eu encontrei um tesouro",
+
+"o cachorro correu rapido",
+
+"a nave chegou no planeta"
+
+];
+
+
+let extras=[
+
+"azul",
+"grande",
+"feliz",
+"novo",
+"super"
+
+];
+
+
+let resposta=[];
+
+let tentativas=5;
+
+let modo="Clicar";
+
+
+
+function iniciar(){
+
+
+document.getElementById("frase").innerHTML="";
+
+tentativas=5;
+
+document.getElementById("vidas").innerHTML=
+"❤️❤️❤️❤️❤️";
+
+
+document.getElementById("dica").innerHTML="";
+
+
+let frase=
+bancoFrases[
+Math.floor(Math.random()*bancoFrases.length)
+];
+
+
+resposta=frase.split(" ");
+
+
+
+let lista=[...resposta];
+
+
+for(let i=0;i<3;i++){
+
+lista.push(
+extras[
+Math.floor(Math.random()*extras.length)
+]
+);
+
 }
+
+
+lista.sort(()=>Math.random()-0.5);
+
+
+
+mostrarPalavras(lista);
+
+
+}
+
+
+
+function mostrarPalavras(lista){
+
+
+let area=document.getElementById("palavras");
+
+area.innerHTML="";
+
+
+lista.forEach(p=>{
+
+
+let bloco=document.createElement("div");
+
+bloco.className="bloco";
+
+bloco.innerHTML=p;
+
+
+bloco.onclick=function(){
+
+mover(bloco);
+
+};
+
+
+area.appendChild(bloco);
+
+
+});
+
+
+}
+
+
+
+function mover(bloco){
+
+
+let palavras=document.getElementById("palavras");
+
+let frase=document.getElementById("frase");
+
+
+
+if(bloco.parentElement==palavras){
+
+frase.appendChild(bloco);
+
+}else{
+
+palavras.appendChild(bloco);
+
+}
+
+
+}
+
+
+
+function trocarModo(){
+
+
+if(modo=="Clicar"){
+
+modo="Arrastar";
+
+}else{
+
+modo="Clicar";
+
+}
+
+
+document.getElementById("modo").innerHTML=modo;
+
+
+}
+
+
+
+function verificar(){
+
+
+let atual=[];
+
+
+document.querySelectorAll("#frase .bloco")
+.forEach(b=>{
+
+atual.push(b.innerHTML);
+
+});
+
+
+
+let dica="";
+
+
+for(let i=0;i<atual.length;i++){
+
+
+if(resposta[i]==atual[i]){
+
+dica+="✅ "+atual[i]+" está no lugar certo<br>";
+
+}
+
+else if(resposta.includes(atual[i])){
+
+dica+="🟡 "+atual[i]+" existe mas está errado<br>";
+
+}
+
+else{
+
+dica+="❌ "+atual[i]+" não faz parte<br>";
+
+}
+
+
+}
+
+
+
+if(atual.join(" ")==resposta.join(" ")){
+
+
+document.getElementById("dica").innerHTML=
+"🏆 Acertou!<br>🪙 +50 Tuks<br><br>"+
+"<button onclick='iniciar()'>Jogar novamente</button>";
+
+
+return;
+
+
+}
+
+
+
+tentativas--;
+
+
+document.getElementById("vidas").innerHTML=
+"❤️".repeat(tentativas);
+
+
+document.getElementById("dica").innerHTML=dica;
+
+
+
+if(tentativas<=0){
+
+document.getElementById("dica").innerHTML=
+"💀 Fim! A frase era:<br>"+
+resposta.join(" ")+"<br><br>"+
+"<button onclick='iniciar()'>Tentar outra</button>";
+
+}
+
+
+}
+
+
+
+iniciar();
+
+
 </script>
+
 
 </body>
 </html>
