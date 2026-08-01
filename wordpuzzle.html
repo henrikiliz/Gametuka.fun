@@ -3,15 +3,29 @@
 <head>
     <title>Word Puzzle</title>
 </head>
-<body style="text-align:center;">
 
-    <h1>🧩 Word Puzzle</h1>
+<body style="text-align:center; font-family:Arial;">
 
-    <p>Seu jogo vai aqui</p>
+<h1>🧩 Adivinhe a palavra</h1>
 
-    <button onclick="window.location.href='index.html'">
-        Voltar
-    </button>
+<input id="input" placeholder="Digite a palavra">
+<button onclick="check()">Verificar</button>
+
+<p id="result"></p>
+
+<script>
+let palavra = "jogo";
+
+function check() {
+    let valor = document.getElementById("input").value;
+
+    if (valor === palavra) {
+        document.getElementById("result").innerText = "Acertou!";
+    } else {
+        document.getElementById("result").innerText = "Errou!";
+    }
+}
+</script>
 
 </body>
 </html>
