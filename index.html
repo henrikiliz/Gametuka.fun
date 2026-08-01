@@ -2,20 +2,60 @@
 <html>
 <head>
     <title>GameTuka</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 50px;
+            font-size: 40px;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        .game-btn {
+            display: block;
+            width: 250px;
+            margin: 20px auto;
+            padding: 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            background: #00c6ff;
+            color: black;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .game-btn:hover {
+            background: #0072ff;
+            color: white;
+            transform: scale(1.05);
+        }
+    </style>
 </head>
-<body style="text-align:center; font-family:Arial;">
+
+<body>
 
     <h1>🎮 GameTuka</h1>
 
-    <button onclick="window.location.href='circuito.html'">
-        Jogar Circuito
-    </button>
+    <div class="container">
+        <button class="game-btn" onclick="location.href='circuito.html'">
+            🏎️ Circuito
+        </button>
 
-    <br><br>
-
-    <button onclick="window.location.href='wordpuzzle.html'">
-        Jogar Palavra
-    </button>
+        <button class="game-btn" onclick="location.href='wordpuzzle.html'">
+            🧩 Word Puzzle
+        </button>
+    </div>
 
 </body>
 </html>
