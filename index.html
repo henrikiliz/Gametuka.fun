@@ -1,61 +1,86 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>GameTuka</title>
+<meta charset="UTF-8">
+<title>GameTuka.fun</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            color: white;
-            text-align: center;
-        }
+<style>
 
-        h1 {
-            margin-top: 50px;
-            font-size: 40px;
-        }
+body{
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
+font-family:Arial;
+text-align:center;
+margin:0;
+}
 
-        .container {
-            margin-top: 50px;
-        }
+h1{
+font-size:50px;
+margin-top:30px;
+color:#00ff88;
+text-shadow:0 0 15px #00ff88;
+}
 
-        .game-btn {
-            display: block;
-            width: 250px;
-            margin: 20px auto;
-            padding: 20px;
-            font-size: 18px;
-            border: none;
-            border-radius: 10px;
-            background: #00c6ff;
-            color: black;
-            cursor: pointer;
-            transition: 0.3s;
-        }
+p{
+opacity:0.8;
+}
 
-        .game-btn:hover {
-            background: #0072ff;
-            color: white;
-            transform: scale(1.05);
-        }
-    </style>
+.menu{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:25px;
+margin-top:40px;
+}
+
+.jogo{
+width:200px;
+height:180px;
+background:#111;
+border-radius:20px;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+font-size:22px;
+cursor:pointer;
+transition:0.3s;
+box-shadow:0 0 15px rgba(0,0,0,0.5);
+}
+
+.jogo:hover{
+transform:scale(1.1);
+background:#00ff88;
+color:black;
+box-shadow:0 0 25px #00ff88;
+}
+
+.emoji{
+font-size:40px;
+margin-bottom:10px;
+}
+
+</style>
 </head>
 
 <body>
 
-    <h1>🎮 GameTuka</h1>
+<h1>🎮 GameTuka.fun</h1>
+<p>Escolha seu jogo</p>
 
-    <div class="container">
-        <button class="game-btn" onclick="location.href='circuito.html'">
-            🏎️ Circuito
-        </button>
+<div class="menu">
 
-        <button class="game-btn" onclick="location.href='wordpuzzle.html'">
-            🧩 Word Puzzle
-        </button>
-    </div>
+<div class="jogo" onclick="location.href='circuito.html'">
+<div class="emoji">⚡</div>
+Circuit Tuka
+</div>
+
+<div class="jogo" onclick="location.href='wordpuzzle.html'">
+<div class="emoji">🧩</div>
+Word Puzzle
+</div>
+
+</div>
 
 </body>
 </html>
